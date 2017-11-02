@@ -1,0 +1,9 @@
+/home/jpmvjvmh/node_modules/geotiff/dist/geotiff.js:30
+    throw new TypeError("Invalid byte order value.");
+    ^
+
+TypeError: Invalid byte order value.
+    at new GeoTIFF (/home/jpmvjvmh/node_modules/geotiff/dist/geotiff.js:30:11)
+    at Object.parse (/home/jpmvjvmh/node_modules/geotiff/dist/main.js:25:10)
+    at /home/jpmvjvmh/public_html/WCS_Arome/traiteGeotiff.js:10:25
+    at FSReqWrap.readFileAfterClose [as oncomplete] (fs.js:528:3)

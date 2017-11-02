@@ -1,0 +1,6 @@
+ javac -encoding utf8 TraiteLesCoverageIDLabels.java  
+ 
+ 
+ puis pour lancer les traitements des WCS d'Arome :
+ 
+ bash InterrogationWCSMF.sh 0025 fichCoverageIDLabels
