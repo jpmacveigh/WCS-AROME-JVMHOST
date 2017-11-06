@@ -3,12 +3,12 @@ exports.traiteGeotiff=function(path,nomDeLaVariable){
   var fichierDesPrevisions="resultPrevi";
   fs.readFile(path, function(err,geotiff) {
     if (err) throw err;
-    console.log("lecture OK geotiff de Météo-France : ", path);
+    //console.log("lecture OK geotiff de Météo-France : ", path);
     var dataArray = geotiff.buffer.slice();
-    console.log("slice OK");
+    //console.log("slice OK");
     var GeoTIFF = require("geotiff");
     this.tiff = GeoTIFF.parse(dataArray);
-    console.log("parse OK");
+    //console.log("parse OK");
     //console.log(tiff);
     //console.log("geotifView :",this.tiff.geotiffView);
     //console.log ("nombre images dans le tiff : ",this.tiff.getImageCount()); 
@@ -18,9 +18,9 @@ exports.traiteGeotiff=function(path,nomDeLaVariable){
     console.log(this.image.getFileDirectory());
     console.log("***************************************************************************");
     var gdalMetadata = this.image.getFileDirectory().GDAL_METADATA;
-    console.log ("***********************  GDAL_METADATA  ***********************");
+    console.log ("***********************  GDAL_METADATA  ***********************")
     console.log(gdalMetadata);
-    console.log ("*****************************************************************");
+    console.log ("*****************************************************************")
     var DOMParser = require('xmldom').DOMParser;
     var parser = new DOMParser();
     var xmlDoc = parser.parseFromString(gdalMetadata,"text/xml");
@@ -73,9 +73,10 @@ exports.traiteGeotiff=function(path,nomDeLaVariable){
     var prevu2chiffres=parseFloat(valeurPrevue).toFixed(2);
     console.log("point défini  : ",getPoint(6,36));  // point Lille (3.06,50.64) dans vigentte 0.01 degrès couvrant Longi(3,4) et Lati(50.51)    //Affiche(image);
     var chaine=variable+" "+abbrev+"  "+description+" "+dateDuRun+" "+datePrevision+" "+valeurPrevue;
+    var DateUTCString=new Date().toUTCString();
     var previ=
     {
-      "now":Date(),
+      "now": DateUTCString,
       //"nom":short_name,
       "nom":variable,
       "abrev":abbrev,
@@ -85,7 +86,7 @@ exports.traiteGeotiff=function(path,nomDeLaVariable){
       "run":dateDuRun,
       "date":datePrevision,
       "val":prevu2chiffres
-    };
+    }
     chaine=JSON.stringify(previ);
     console.log (chaine);
     require("fs").appendFileSync("resultPrevi", chaine+"\n", "UTF-8");
@@ -99,7 +100,6 @@ exports.traiteGeotiff=function(path,nomDeLaVariable){
       //console.log ("deltalongi : ",deltalongi,"   deltalati : ",deltalati);
       var longi=longimin+i*deltalongi;
       var lati=latimax-j*deltalati;
-      
       return {longi,lati};
     }
     function getValue(i,j){
@@ -112,7 +112,7 @@ exports.traiteGeotiff=function(path,nomDeLaVariable){
     function getPoint(i,j){
       var val = getValue(i,j);
       var longi = getLongiLati(i,j)["longi"];
-      var lati = getLongiLati(i,j)["lati"];
+      var lati = getLongiLati(i,j)["lati"]
       return {longi,lati,val};
     }
     function Affiche (){
@@ -133,4 +133,4 @@ exports.traiteGeotiff=function(path,nomDeLaVariable){
       }
     }
   });
-};
+}

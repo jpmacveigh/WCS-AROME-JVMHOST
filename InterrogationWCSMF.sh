@@ -1,6 +1,6 @@
 cd /home/jpmvjvmh/public_html/WCS_Arome/
 date
-tail -10000 resultPrevi > tempo
+tail -15000 resultPrevi > tempo
 cat tempo > resultPrevi
 rm tempo
 resol=$1  # la résolution ("0025" ou "001") est passée en premier paramètre
