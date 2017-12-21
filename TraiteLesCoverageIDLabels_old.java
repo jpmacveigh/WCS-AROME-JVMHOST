@@ -12,6 +12,7 @@ class TraiteLesCoverageIDLabels {
         //String resolution = "0025";
         String resolution =arg[0];  // la résolution ("OO25 ou "001") est passée en premier argument
         String fichDesCoverageIDlabel=arg[1];
+        String pathLocal=arg[2];
         //getWCSCapabilities(resolution);
         BufferedReader br = new BufferedReader(new FileReader(fichDesCoverageIDlabel));
         String line;
@@ -28,17 +29,15 @@ class TraiteLesCoverageIDLabels {
             //System.out.println("ma date : "+label.getStringDate());
             //System.out.println("mon suffixe : "+label.getSuffixe());
             //System.out.println("mon TS en milisecondes : "+label.getTSInMiliDate());
-            if (label.getCumul()!= null) System.out.println("mon cumul : "+label.getCumul());
             double age=label.getAge();
             //System.out.println("mon age (heures) : "+age);
             //System.out.println("suis-je futur ? "+label.isFutur());
-            System.out.println("A ignorer : "+label.aIgnorer());
             if ((age<=8)&&(!label.aIgnorer()))  {  // on ne traite que les certains coverageIDLabel de moins de 8 heures d'age 
                 nbLabelTraites=nbLabelTraites+1;
                 //long echeance=36000;
                 //System.out.println("echeance (sec) : "+echeance+" date prevision : "+label.getDateDeLaPrevision(echeance));
                 CoverageID cov=new CoverageID(label,resolution);
-                System.out.println("Labels traités: "+nbLabelTraites+"   "+cov.getDescribeCoveragePath());
+                System.out.println(nbLabelTraites+"   "+cov.getDescribeCoveragePath());
                 HashMap<String,String[]> lesCoordonnees=cov.getLesCoordonnees();
                 for (String key : lesCoordonnees.keySet()){
                     System.out.println(key);
@@ -53,7 +52,7 @@ class TraiteLesCoverageIDLabels {
                     if (path.estUnePrevision() ){  // on de traite que les prévision (date future)
                         nbPrevision=nbPrevision+1;
                         System.out.println(nbPrevision+" calcul des previsions avec :"+path.getCoveragePath());
-                        String commande = "./getEtAnalyseCoverage.sh "+path.getCoveragePath()+" "+path.getNomDeLaVariable();
+                        String commande = pathLocal+"getEtAnalyseCoverage.sh "+path.getCoveragePath()+" "+path.getNomDeLaVariable();
                         Runtime.getRuntime().exec(commande);
                         TimeUnit.MILLISECONDS.sleep(500);
                         

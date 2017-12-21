@@ -1,0 +1,8 @@
+créer ou utiliser la base Arome.sqlite : sqlite3 Arome.sqlite
+créer la table prevision dans Arome.sqlite : sqlite> CREATE TABLE prevision (now text,nom text,abrev text,niv text,unit text,run text,date text,val text);
+
+transformer le ficheir resulPrevi en la base Arome.sqlite : 
+python traiteResultPrevi.py
+
+exemple de select sur la table prévision :
+select now,nom,run, date,val from prevision where date = "2017-11-22T11:00:00.000Z" AND nom ="TOTAL_PRECIPITATION__GROUND_O";

@@ -1,5 +1,6 @@
 cd /home/jpmvjvmh/public_html/WCS_Arome/
 date
+pkill -9 node
 tail -15000 resultPrevi > tempo
 cat tempo > resultPrevi
 rm tempo
@@ -8,4 +9,5 @@ fichcoverageIDLabels=$2 # le nom du fichier des coverageIDLabel en second
 bash fabriqueLesCoverageIDLabels.sh $resol $fichcoverageIDLabels
 java_path="/opt/jdk1.8.0_05/jre/bin/"
 ${java_path}java TraiteLesCoverageIDLabels $resol $fichcoverageIDLabels /home/jpmvjvmh/public_html/WCS_Arome/
+python traiteResultPrevi.py
 date
