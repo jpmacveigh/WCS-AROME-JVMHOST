@@ -15,17 +15,17 @@ exports.traiteGeotiff=function(path,nomDeLaVariable){
     this.image = this.tiff.getImage(); // or use .getImage(n) where n is between 0 and tiff.getImageCount() 
     //console.log("largeur : ",this.image.getWidth(), "   hauteur : ",this.image.getHeight(), "   pas : ",this.image.getSamplesPerPixel());
     console.log("************************* getFileDirectory *********************************");
-    //console.log(this.image.getFileDirectory());
+    console.log(this.image.getFileDirectory());
     console.log("***************************************************************************");
     var gdalMetadata = this.image.getFileDirectory().GDAL_METADATA;
     console.log ("***********************  GDAL_METADATA  ***********************")
-    //console.log(gdalMetadata);
+    console.log(gdalMetadata);
     console.log ("*****************************************************************")
     var DOMParser = require('xmldom').DOMParser;
     var parser = new DOMParser();
     var xmlDoc = parser.parseFromString(gdalMetadata,"text/xml");
     console.log ("*********************   xlmDoc ******************");
-    //console.log ("xlmDoc",xmlDoc);
+    console.log ("xlmDoc",xmlDoc);
     console.log ("*************************************************");
     var variable=xmlDoc.getElementsByTagName("Item")[0].childNodes[0].nodeValue;
     console.log("variable : ",variable);
@@ -57,19 +57,8 @@ exports.traiteGeotiff=function(path,nomDeLaVariable){
     console.log("ModelTiepoint : ",this.image.getFileDirectory().ModelTiepoint);
     console.log("ModelTiepoint[4] : ",this.image.getFileDirectory().ModelTiepoint[4]);
     console.log("************************** getGeoKey ***************************************");
-    //console.log(this.image.getGeoKeys());
+    console.log(this.image.getGeoKeys());
     console.log("**********************************************************************");
-    // definition de la grilleLongLat couverte par le coverage
-    var longimin=this.image.getFileDirectory().ModelTiepoint[3];         // longitude minimale (bord Ouest)
-    var latimax=this.image.getFileDirectory().ModelTiepoint[4];          // latitude maximale  (bord Nord)
-    //console.log ("longimin : ",longimin,"   latimax : ",latimax);
-    var deltalongi=this.image.getFileDirectory().ModelPixelScale[0];     // incrément de longitude
-    var deltalati=this.image.getFileDirectory().ModelPixelScale[1];      // décrément de latitude
-    //console.log ("deltalongi : ",deltalongi,"   deltalati : ",deltalati);
-    var nblongi=this.image.getWidth();        // nb de pixels sur la largeur (longitudes)
-    var nblati=this.image.getHeight();        // nb de pixels sur la hauteur (latitudes)
-    this.grille=new (require("./GrilleLongLat.js"))(longimin,latimax,nblongi,nblati,deltalongi,deltalati);
-    //this.grille.affiche();
     var rasters = this.image.readRasters();
     if (rasters[0].length == (this.image.getWidth()*this.image.getHeight())){
       //console.log ("longueur du raster : ",rasters[0].length,"  OK");
@@ -80,14 +69,9 @@ exports.traiteGeotiff=function(path,nomDeLaVariable){
     console.log("décrément de latitude  : ",this.image.getFileDirectory().ModelPixelScale[1]);      // décrément de latitude
     console.log("premier point : ",getPoint(0,0));
     console.log("dernier point : ",getPoint(this.image.getWidth()-1,this.image.getHeight()-1));
-    var pointAExtraire=this.grille.nearest(3.058,50.637);  // point situé à Lille, rue de la Baigenrie
-    console.log("point à extraire: ",pointAExtraire);
-    var iAExtraire=pointAExtraire.iNear;
-    var jAExtraire=pointAExtraire.jNear;
-    var valeurPrevue=" "+getPoint(iAExtraire,jAExtraire)["val"];
+    var valeurPrevue=" "+getPoint(6,36)["val"];
     var prevu2chiffres=parseFloat(valeurPrevue).toFixed(2);
-    console.log("point à extraire: ",getPoint(iAExtraire,jAExtraire));  
-    //Affiche(image);
+    console.log("point défini  : ",getPoint(6,36));  // point Lille (3.06,50.64) dans vigentte 0.01 degrès couvrant Longi(3,4) et Lati(50.51)    //Affiche(image);
     var chaine=variable+" "+abbrev+"  "+description+" "+dateDuRun+" "+datePrevision+" "+valeurPrevue;
     //var DateUTCString=new Date().toUTCString();
     var DateUTCString=new Date().toISOString();
@@ -101,22 +85,27 @@ exports.traiteGeotiff=function(path,nomDeLaVariable){
       "niv":niveau,
       "unit":unit,
       "run":dateDuRun,
-      "longi":getPoint(iAExtraire,jAExtraire).longi,
-      "lati":getPoint(iAExtraire,jAExtraire).lati,
       "date":datePrevision,
       "val":prevu2chiffres
-    };
+    }
     chaine=JSON.stringify(previ);
     console.log (chaine);
     require("fs").appendFileSync("resultPrevi", chaine+"\n", "UTF-8");
-    
     function getLongiLati(i,j){
-      return this.grille.getLongiLati(i,j);
+      isValide(i,j);
+      var longimin=this.image.getFileDirectory().ModelTiepoint[3];         // longitude minimale (bord Ouest)
+      var latimax=this.image.getFileDirectory().ModelTiepoint[4];          // latitude maximale  (bord Nord)
+      //console.log ("longimin : ",longimin,"   latimax : ",latimax);
+      var deltalongi=this.image.getFileDirectory().ModelPixelScale[0];     // incrément de longitude
+      var deltalati=this.image.getFileDirectory().ModelPixelScale[1];      // décrément de latitude
+      //console.log ("deltalongi : ",deltalongi,"   deltalati : ",deltalati);
+      var longi=longimin+i*deltalongi;
+      var lati=latimax-j*deltalati;
+      return {longi,lati};
     }
-    
     function getValue(i,j){
       isValide(i,j);
-      var nblongi=this.image.getWidth();        // nb de pixels sur la largeur (longitudes)
+      var nblongi=this.image.getWidth();           // nb de pixels sur la largeur (longitudes)
       //var nblati=image.getHeight();           // nb de pixels sur la hauteur (latitudes)
       var rasters = this.image.readRasters();
       return (rasters[0][j*nblongi + i]);     // le raster est supposé être une suite de "nblati" lignes de longitudes de "nblongi" de largeur
@@ -124,10 +113,9 @@ exports.traiteGeotiff=function(path,nomDeLaVariable){
     function getPoint(i,j){
       var val = getValue(i,j);
       var longi = getLongiLati(i,j)["longi"];
-      var lati = getLongiLati(i,j)["lati"];
+      var lati = getLongiLati(i,j)["lati"]
       return {longi,lati,val};
     }
-    
     function Affiche (){
       for (var i=0;i<this.image.getWidth();i++){
         for (var j=0;j<this.image.getHeight();j++){
@@ -135,9 +123,15 @@ exports.traiteGeotiff=function(path,nomDeLaVariable){
         }
       }
     }
-    
     function isValide (i,j){
-      return this.grille.isValideIJ(i,j);
+      var rep = ((i>=0)&&(i<this.image.getWidth())&&(j>=0)&&(j<this.image.getHeight()));
+      if (rep) {
+        return;
+      }
+      else { 
+        console.log("(",i,",",j,") non valide");
+        throw new Error("(",i,",",j,") non valide");
+      }
     }
   });
 }
